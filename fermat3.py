@@ -2,15 +2,14 @@ from lib3 import *
 
 def fermat(N):
 	stop, a = False, int(ceil(sqrt(N)))
-	while stop == False:
+	while not stop:
 		bsquare = a*a - N
 		if is_square(bsquare):
 			b = sqrt(bsquare)
 			p = a - b
-			q = a + b 
-			if p != 1 and p != N:
-				return p, q 
-				stop = True
+			q = a + b
+			if p not in [1, N]:
+				return p, q
 		if a == N:
 			stop = True
 		a += 1

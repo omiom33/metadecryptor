@@ -11,11 +11,8 @@ UPPERLETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 LETTERS_AND_SPACE = UPPERLETTERS + UPPERLETTERS.lower() + ' \t\n'
 
 def loadDictionary():
-    dictionaryFile = open('asset/dict.txt')
-    englishWords = {}
-    for word in dictionaryFile.read().split('\n'):
-        englishWords[word] = None
-    dictionaryFile.close()
+    with open('asset/dict.txt') as dictionaryFile:
+        englishWords = {word: None for word in dictionaryFile.read().split('\n')}
     return englishWords
 
 ENGLISH_WORDS = loadDictionary()
@@ -30,18 +27,12 @@ def getEnglishCount(message):
     if possibleWords == []:
         return 0.0  # no words at all, so return 0.0
 
-    matches = 0
-    for word in possibleWords:
-        if word in ENGLISH_WORDS:
-            matches += 1
+    matches = sum(word in ENGLISH_WORDS for word in possibleWords)
     return float(matches) / len(possibleWords)
 
 
 def removeNonLetters(message):
-    lettersOnly = []
-    for symbol in message:
-        if symbol in LETTERS_AND_SPACE:
-            lettersOnly.append(symbol)
+    lettersOnly = [symbol for symbol in message if symbol in LETTERS_AND_SPACE]
     return ''.join(lettersOnly)
 
 

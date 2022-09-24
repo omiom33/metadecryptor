@@ -5,10 +5,9 @@ def alphabet_to_number(word):
 	array_number = number.split(' ')
 	converted_word = []
 	for letter in word:
-		for n in range(0, len(array_number), 1):
+		for n in range(len(array_number)):
 			if letter == array_alphabet[n]:
-				converted_word.append(array_number[n])
-				converted_word.append(' ')
+				converted_word.extend((array_number[n], ' '))
 	del converted_word[-1]
 	return ''.join(converted_word)
 
@@ -20,13 +19,11 @@ def number_to_alphabet(numbers):
 	numbers = numbers.split(' ')
 	converted_numbers = []
 	for num in numbers:
-		for n in range(0, len(array_alphabet), 1):
+		for n in range(len(array_alphabet)):
 			if int(num) > 26:
 				num = str(int(num) - 26)
-			else:
-				if num == array_number[n]:
-					converted_numbers.append(array_alphabet[n])
-					converted_numbers.append(' ')
+			elif num == array_number[n]:
+				converted_numbers.extend((array_alphabet[n], ' '))
 	del converted_numbers[-1]
 	return ''.join(converted_numbers)
 

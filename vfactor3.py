@@ -1,15 +1,12 @@
 from lib3 import *
 
 def LSB(decimal):
-	if bin(decimal)[-1:] == '1':
-		return "odd"
-	else:
-		return "even"
+	return "odd" if bin(decimal).endswith('1') else "even"
 
 def vfactor(N):
 	root = int(floor(sqrt(N)))
 	if LSB(root) == 'even':
-		root = root - 1
+		root -= 1
 	y = root
 	x = root + 2
 	m = x*y

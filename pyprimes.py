@@ -294,10 +294,7 @@ def _validate_num(obj):
 
 
 def _base_to_bases(base, n):
-    if isinstance(base, tuple):
-        bases = base
-    else:
-        bases = (base,)
+    bases = base if isinstance(base, tuple) else (base, )
     for b in bases:
         _validate_int(b)
         if not 1 <= b < n:
@@ -336,9 +333,9 @@ def erat(n):
     # Cross out 0 and 1 since they aren't prime.
     arr[0] = arr[1] = None
     i = 2
-    while i*i <= n:
+    while i**2 <= n:
         # Cross out all the multiples of i starting from i**2.
-        for p in range(i*i, n+1, i):
+        for p in range(i**2, n+1, i):
             arr[p] = None
         # Advance to the next number not crossed off.
         i += 1
@@ -415,8 +412,7 @@ def croft():
     #   http://www.primesdemystified.com/
     # Memory usage increases roughly linearly with the number of primes seen.
     # dict ``roots`` stores an entry x:p for every prime p.
-    for p in (2, 3, 5):
-        yield p
+    yield from (2, 3, 5)
     roots = {9: 3, 25: 5}  # Map d**2 -> d.
     primeroots = frozenset((1, 7, 11, 13, 17, 19, 23, 29))
     selectors = (1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0)
@@ -442,8 +438,7 @@ def croft():
 
 def wheel():
     """Generate prime numbers using wheel factorisation modulo 210."""
-    for i in (2, 3, 5, 7, 11):
-        yield i
+    yield from (2, 3, 5, 7, 11)
     # The following constants are taken from the paper by O'Neill.
     spokes = (2, 4, 2, 4, 6, 2, 6, 4, 2, 4, 6, 6, 2, 6, 4, 2, 6, 4, 6,
         8, 4, 2, 4, 2, 4, 8, 6, 4, 6, 2, 4, 6, 2, 6, 6, 4, 2, 4, 6, 2,
@@ -490,10 +485,7 @@ def awful_primes():
     yield i
     while True:
         i += 1
-        composite = False
-        for p in range(2, i):
-            if i%p == 0:
-                composite = True
+        composite = any(i%p == 0 for p in range(2, i))
         if not composite:  # It must be a prime.
             yield i
 
@@ -650,8 +642,7 @@ def primes_above(x):
     while p <= x:
         p = next(it)
     yield p
-    for p in it:
-        yield p
+    yield from it
 
 
 def primes_below(x):
@@ -706,7 +697,7 @@ def prime_count(x):
     # See also:  http://primes.utm.edu/howmany.shtml
     # http://mathworld.wolfram.com/PrimeCountingFunction.html
     _validate_num(x)
-    return sum(1 for p in primes_below(x))
+    return sum(1 for _ in primes_below(x))
 
 
 def primesum(n):
@@ -766,13 +757,9 @@ def isprime(n):
     """
     _validate_int(n)
     # Deal with trivial cases first.
-    if n < 2:
+    if n < 2 or n != 2 and n % 2 == 0:
         return False
-    elif n == 2:
-        return True
-    elif n%2 == 0:
-        return False
-    elif n <= 7:  # 3, 5, 7
+    elif n == 2 or n <= 7:
         return True
     bases = _choose_bases(n)
     flag = miller_rabin(n, bases)
@@ -796,29 +783,29 @@ def _choose_bases(n):
     # http://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test
     if n < 1373653:  # Blah, it's too hard to read big ints at a glance.
         # ~1.3 million
-        bases = (2, 3)
+        return 2, 3
     elif n < 9080191:  # ~9.0 million
-        bases = (31, 73)
+        return 31, 73
     elif n < 4759123141:  # ~4.7 billion
         # Note to self: checked up to approximately 394 million in 9 hours.
-        bases = (2, 7, 61)
+        return 2, 7, 61
     elif n < 2152302898747:  # ~2.1 trillion
-        bases = (2, 3, 5, 7, 11)
+        return 2, 3, 5, 7, 11
     elif n < 3474749660383:  # ~3.4 trillion
-        bases = (2, 3, 5, 7, 11, 13)
+        return 2, 3, 5, 7, 11, 13
     elif n < 341550071728321:  # ~341 trillion
-        bases = (2, 3, 5, 7, 11, 13, 17)
+        return 2, 3, 5, 7, 11, 13, 17
     else:
         # n is too large, so we have to use a probabilistic test. There's no
         # harm in trying some of the lower values for base first.
-        bases = (2, 3, 5, 7, 11, 13, 17) + tuple(
-                    [random.randint(18, n-1) for _ in range(40)]
-                    )
-        # Note: we can always be deterministic, no matter how large N is, by
-        # exhaustive testing against each i in the inclusive range
-        # 1 ... min(n-1, floor(2*(ln N)**2)). We don't do this, because it is
-        # expensive for large N, and of no real practical benefit.
-    return bases
+        return (2, 3, 5, 7, 11, 13, 17) + tuple(
+            random.randint(18, n - 1) for _ in range(40)
+        )
+
+            # Note: we can always be deterministic, no matter how large N is, by
+            # exhaustive testing against each i in the inclusive range
+            # 1 ... min(n-1, floor(2*(ln N)**2)). We don't do this, because it is
+            # expensive for large N, and of no real practical benefit.
 
 
 def isprime_naive(n):
@@ -837,10 +824,7 @@ def isprime_naive(n):
     _validate_int(n)
     if n == 2:  return True
     if n < 2 or n % 2 == 0:  return False
-    for i in range(3, int(n**0.5)+1, 2):
-        if n % i == 0:
-            return False
-    return True
+    return all(n % i != 0 for i in range(3, int(n**0.5)+1, 2))
 
 
 def isprime_division(n):
@@ -931,17 +915,11 @@ def fermat(n, base=2):
     _validate_int(n)
     bases = _base_to_bases(base, n)
     # Deal with the simple deterministic cases first.
-    if n < 2:
+    if n < 2 or n != 2 and n % 2 == 0:
         return False
     elif n == 2:
         return True
-    elif n % 2 == 0:
-        return False
-    # Now the Fermat test proper.
-    for a in bases:
-        if pow(a, n-1, n) != 1:
-            return False  # n is certainly composite.
-    return True  # All of the bases are witnesses for n being prime.
+    return all(pow(a, n-1, n) == 1 for a in bases)
 
 
 def miller_rabin(n, base=2):
@@ -998,11 +976,7 @@ def miller_rabin(n, base=2):
     # Now perform the Miller-Rabin test proper.
     # Start by writing n-1 as 2**s * d.
     d, s = _factor2(n-1)
-    for a in bases:
-        if _is_composite(a, d, s, n):
-            return False  # n is definitely composite.
-    # If we get here, all of the bases are witnesses for n being prime.
-    return True
+    return not any(_is_composite(a, d, s, n) for a in bases)
 
 
 def _factor2(n):
@@ -1045,10 +1019,7 @@ def _is_composite(b, d, s, n):
     assert d*2**s == n-1
     if pow(b, d, n) == 1:
         return False
-    for i in range(s):
-        if pow(b, 2**i * d, n) == n-1:
-            return False
-    return True
+    return all(pow(b, 2**i * d, n) != n-1 for i in range(s))
 
 
 # ===================
@@ -1079,13 +1050,11 @@ def factors(n):
     result = []
     for p, count in factorise(n):
         result.extend([p]*count)
-    if __debug__:
-        # The following test only occurs if assertions are on.
-        if _EXTRA_CHECKS:
-            prod = 1
-            for x in result:
-                prod *= x
-            assert prod == n, ('factors(%d) failed multiplication test' % n)
+    if __debug__ and _EXTRA_CHECKS:
+        prod = 1
+        for x in result:
+            prod *= x
+        assert prod == n, ('factors(%d) failed multiplication test' % n)
     return result
 
 
@@ -1120,10 +1089,8 @@ def factorise(n):
         if count:
             yield (p, count)
     if n != 1:
-        if __debug__:
-            # The following test only occurs if assertions are on.
-            if _EXTRA_CHECKS:
-                assert isprime(n), ('failed isprime test for %d' % n)
+        if __debug__ and _EXTRA_CHECKS:
+            assert isprime(n), ('failed isprime test for %d' % n)
         yield (n, 1)
 
 

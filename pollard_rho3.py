@@ -7,7 +7,7 @@ def pollard_rho(N):
 	p = 1
 
 	while p == 1:
-		for count in range(1, cycle_size ,1):
+		for _ in range(1, cycle_size):
 			x = (x*x + 1) % N
 			p = gcd(x - x_fixed, N)
 		cycle_size *= 2

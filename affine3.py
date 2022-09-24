@@ -5,14 +5,11 @@ import affineCipher, detectEnglish, cryptomath, sys
 
 def breakAffine(cipher):
     print('\nCipher:')
-    yp_file = open(cipher)
-    i = 0
-    for yp_line in yp_file:
-        inp = yp_line.rstrip()
-        print(inp)
-        Affine(inp)
-        i += 1
-    yp_file.close()
+    with open(cipher) as yp_file:
+        for yp_line in yp_file:
+            inp = yp_line.rstrip()
+            print(inp)
+            Affine(inp)
 
 def Affine(cipher):
     hackedMessage = hackAffine(cipher)
@@ -49,11 +46,8 @@ def hackAffine(message):
 # the main() function.
 if __name__ == '__main__':
     print('\nCipher:')
-    yp_file = open(sys.argv[1])
-    i = 0
-    for yp_line in yp_file:
-        inp = yp_line.rstrip()
-        print(inp)
-        Affine(inp)
-        i += 1
-    yp_file.close()
+    with open(sys.argv[1]) as yp_file:
+        for yp_line in yp_file:
+            inp = yp_line.rstrip()
+            print(inp)
+            Affine(inp)

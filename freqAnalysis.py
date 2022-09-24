@@ -44,8 +44,8 @@ def getFrequencyOrder(message):
 
     # third, put each list of letters in reverse "ETAOIN" order, and then
     # convert it to a string
-    for freq in freqToLetter:
-        freqToLetter[freq].sort(key=ETAOIN.find, reverse=True)
+    for freq, value in freqToLetter.items():
+        value.sort(key=ETAOIN.find, reverse=True)
         freqToLetter[freq] = ''.join(freqToLetter[freq])
 
     # fourth, convert the freqToLetter dictionary to a list of tuple
@@ -55,10 +55,7 @@ def getFrequencyOrder(message):
 
     # fifth, now that the letters are ordered by frequency, extract all
     # the letters for the final string
-    freqOrder = []
-    for freqPair in freqPairs:
-        freqOrder.append(freqPair[1])
-
+    freqOrder = [freqPair[1] for freqPair in freqPairs]
     return ''.join(freqOrder)
 
 
@@ -70,11 +67,7 @@ def englishFreqMatchScore(message):
     # six least frequent letters for English.
     freqOrder = getFrequencyOrder(message)
 
-    matchScore = 0
-    # Find how many matches for the six most common letters there are.
-    for commonLetter in ETAOIN[:6]:
-        if commonLetter in freqOrder[:6]:
-            matchScore += 1
+    matchScore = sum(commonLetter in freqOrder[:6] for commonLetter in ETAOIN[:6])
     # Find how many matches for the six least common letters there are.
     for uncommonLetter in ETAOIN[-6:]:
         if uncommonLetter in freqOrder[-6:]:

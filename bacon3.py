@@ -5,14 +5,12 @@ def decryptBacon(cipher):
 		myList = [ cipher[i:i+chunk_size] for i in range(0, len(cipher), chunk_size) ]
 		myArr = []
 		out = ''
-		for i in range(0, len(myList), 1):
-			myList[i] = myList[i].upper()
-			if any(myList[i] in s for s in bacon):
-				for j in range(0, len(bacon), 1):
-					if myList[i] == bacon[j]:
-						myArr.append(alphabet[j])
-			else:
-				myArr.append("?")
+		for i in range(len(myList)):
+				myList[i] = myList[i].upper()
+				if any(myList[i] in s for s in bacon):
+						myArr.extend(alphabet[j] for j in range(len(bacon)) if myList[i] == bacon[j])
+				else:
+						myArr.append("?")
 		res = out.join(myArr)
 		iv = res.replace('u','v')
 		ju = res.replace('i','j')
