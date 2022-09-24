@@ -1,18 +1,10 @@
 from lib3 import *
 
 def euler_phi_asc(n):
-	amount = 0
-	for k in range(1, n+1, 1):
-		if gcd(n, k) == 1:
-			amount += 1
-	return amount
+	return sum(gcd(n, k) == 1 for k in range(1, n+1))
 
 def euler_phi_desc(n):
-	amount = 0
-	for k in range(n, 0, -1):
-		if gcd(n, k) == 1:
-	            amount += 1
-	return amount
+	return sum(gcd(n, k) == 1 for k in range(n, 0, -1))
 
 def euler(N, et):
 	p = ((N-et+1)-(sqrt((N-et+1)**2 - 4*et)))/(2)

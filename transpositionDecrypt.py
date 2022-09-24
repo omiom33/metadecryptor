@@ -8,14 +8,14 @@ def main():
     # myMessage = 'chincopachincopa'
     #myMessage = 'chincopa'
     myMessage = 'VTIxMFZVNUVaM1JUZWtaMVRrVjNQUT09'
-    
+
     myKey = 8
 
     plaintext = decryptMessage(myKey, myMessage)
 
     # Print with a | (called "pipe" character) after it in case
     # there are spaces at the end of the decrypted message.
-    print(plaintext + '|')
+    print(f'{plaintext}|')
 
     pyperclip.copy(plaintext)
 

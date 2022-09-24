@@ -11,12 +11,12 @@ def main():
     myKey = 'ASIMOV'
     myMode = 'encrypt' # set to 'encrypt' or 'decrypt'
 
-    if myMode == 'encrypt':
-        translated = encryptMessage(myKey, myMessage)
-    elif myMode == 'decrypt':
+    if myMode == 'decrypt':
         translated = decryptMessage(myKey, myMessage)
 
-    print('%sed message:' % (myMode.title()))
+    elif myMode == 'encrypt':
+        translated = encryptMessage(myKey, myMessage)
+    print(f'{myMode.title()}ed message:')
     print(translated)
     pyperclip.copy(translated)
     print()

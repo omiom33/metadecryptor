@@ -15,15 +15,11 @@ def breakVigenere(cipher):
     # Instead of typing this ciphertext out, you can copy & paste it
     # from http://invpy.com/vigenereHacker.py
     print('\nCipher:')
-    yp_file = open(cipher)
-    i = 0
-    for yp_line in yp_file:
-        inp = yp_line.rstrip()
-        print(inp)
-        hackedMessage = hackVigenere(inp)
-        i += 1
-    yp_file.close()
-
+    with open(cipher) as yp_file:
+        for yp_line in yp_file:
+            inp = yp_line.rstrip()
+            print(inp)
+            hackedMessage = hackVigenere(inp)
     if hackedMessage != None:
         print(hackedMessage)
     else:
@@ -72,8 +68,7 @@ def getUsefulFactors(num):
     # MAX_KEY_LENGTH.
     for i in range(2, MAX_KEY_LENGTH + 1):  # don't test 1
         if num % i == 0:
-            factors.append(i)
-            factors.append(int(num / i))
+            factors.extend((i, int(num / i)))
     if 1 in factors:
         factors.remove(1)
     return list(set(factors))
@@ -99,13 +94,11 @@ def getMostCommonFactors(seqFactors):
 
     # Second, put the factor and its count into a tuple, and make a list
     # of these tuples so we can sort them.
-    factorsByCount = []
-    for factor in factorCounts:
-        # exclude factors larger than MAX_KEY_LENGTH
-        if factor <= MAX_KEY_LENGTH:
-            # factorsByCount is a list of tuples: (factor, factorCount)
-            # factorsByCount has a value like: [(3, 497), (2, 487), ...]
-            factorsByCount.append((factor, factorCounts[factor]))
+    factorsByCount = [
+        (factor, value)
+        for factor, value in factorCounts.items()
+        if factor <= MAX_KEY_LENGTH
+    ]
 
     # Sort the list by the factor count.
     factorsByCount.sort(key=getItemAtIndexOne, reverse=True)
@@ -129,14 +122,7 @@ def kasiskiExamination(ciphertext):
     # See getMostCommonFactors() for a description of factorsByCount.
     factorsByCount = getMostCommonFactors(seqFactors)
 
-    # Now we extract the factor counts from factorsByCount and
-    # put them in allLikelyKeyLengths so that they are easier to
-    # use later.
-    allLikelyKeyLengths = []
-    for twoIntTuple in factorsByCount:
-        allLikelyKeyLengths.append(twoIntTuple[0])
-
-    return allLikelyKeyLengths
+    return [twoIntTuple[0] for twoIntTuple in factorsByCount]
 
 
 def getNthSubkeysLetters(n, keyLength, message):
@@ -183,21 +169,21 @@ def attemptHackWithKeyLength(ciphertext, mostLikelyKeyLength):
     if not SILENT_MODE:
         for i in range(len(allFreqScores)):
             # use i + 1 so the first letter is not called the "0th" letter
-            print('Possible letters for letter %s of the key: ' % (i + 1), end='')
+            print(f'Possible letters for letter {i + 1} of the key: ', end='')
             for freqScore in allFreqScores[i]:
-                print('%s ' % freqScore[0], end='')
+                print(f'{freqScore[0]} ', end='')
             print()  # print a newline
 
     # Try every combination of the most likely letters for each position
     # in the key.
     for indexes in itertools.product(range(NUM_MOST_FREQ_LETTERS), repeat=mostLikelyKeyLength):
         # Create a possible key from the letters in allFreqScores
-        possibleKey = ''
-        for i in range(mostLikelyKeyLength):
-            possibleKey += allFreqScores[i][indexes[i]][0]
+        possibleKey = ''.join(
+            allFreqScores[i][indexes[i]][0] for i in range(mostLikelyKeyLength)
+        )
 
         if not SILENT_MODE:
-            print('Attempting with key: %s' % (possibleKey))
+            print(f'Attempting with key: {possibleKey}')
 
         decryptedText = vigenereCipher.decryptMessage(possibleKey, ciphertextUp)
 
@@ -212,7 +198,7 @@ def attemptHackWithKeyLength(ciphertext, mostLikelyKeyLength):
             decryptedText = ''.join(origCase)
 
             # Check with user to see if the key has been found.
-            print('Possible encryption hack with key %s:' % (possibleKey))
+            print(f'Possible encryption hack with key {possibleKey}:')
             print(decryptedText[:200])  # only show first 200 characters
             print()
             print('Enter D for done, or just press Enter to continue hacking:')
@@ -230,9 +216,7 @@ def hackVigenere(ciphertext):
     # length of the ciphertext's encryption key is.
     allLikelyKeyLengths = kasiskiExamination(ciphertext)
     if not SILENT_MODE:
-        keyLengthStr = ''
-        for keyLength in allLikelyKeyLengths:
-            keyLengthStr += '%s ' % (keyLength)
+        keyLengthStr = ''.join(f'{keyLength} ' for keyLength in allLikelyKeyLengths)
         print('\nKasiski Examination: ' + keyLengthStr + '\n')
 
     for keyLength in allLikelyKeyLengths:
@@ -244,14 +228,17 @@ def hackVigenere(ciphertext):
 
     # If none of the key lengths we found using Kasiski Examination
     # worked, start brute-forcing through key lengths.
-    if hackedMessage == None:
+    if hackedMessage is None:
         if not SILENT_MODE:
             print('Unable to hack message with likely key length(s). Brute forcing key length...')
         for keyLength in range(1, MAX_KEY_LENGTH + 1):
             # don't re-check key lengths already tried from Kasiski
             if keyLength not in allLikelyKeyLengths:
                 if not SILENT_MODE:
-                    print('Attempting hack with key length %s (%s possible keys)...' % (keyLength, NUM_MOST_FREQ_LETTERS ** keyLength))
+                    print(
+                        f'Attempting hack with key length {keyLength} ({NUM_MOST_FREQ_LETTERS**keyLength} possible keys)...'
+                    )
+
                 hackedMessage = attemptHackWithKeyLength(ciphertext, keyLength)
                 if hackedMessage != None:
                     break
@@ -265,15 +252,11 @@ if __name__ == '__main__':
     # from http://invpy.com/vigenereHacker.py
     cipher = sys.argv[1]
     print('\nCipher:')
-    yp_file = open(cipher)
-    i = 0
-    for yp_line in yp_file:
-        inp = yp_line.rstrip()
-        print(inp)
-        hackedMessage = hackVigenere(inp)
-        i += 1
-    yp_file.close()
-
+    with open(cipher) as yp_file:
+        for yp_line in yp_file:
+            inp = yp_line.rstrip()
+            print(inp)
+            hackedMessage = hackVigenere(inp)
     if hackedMessage != None:
         print(hackedMessage)
     else:

@@ -20,7 +20,7 @@ def breakCaesar(cipher):
         for symbol in message:
             if symbol in LETTERS:
                 num = LETTERS.find(symbol) # get the number of the symbol
-                num = num - key
+                num -= key
 
                 # handle the wrap-around if num is 26 or larger or less than 0
                 if num < 0:
@@ -34,4 +34,4 @@ def breakCaesar(cipher):
                 translated = translated + symbol
 
         # display the current key being tested, along with its decryption
-        print('[%s] %s' % (key, translated.lower()))
+        print(f'[{key}] {translated.lower()}')
